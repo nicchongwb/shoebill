@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 repositories {
@@ -12,4 +13,22 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = "${groupId}.${artifactId}.Shoebill"
+}
+
+jar {
+    archiveBaseName.set("shoebill")
+    archiveVersion.set("$version")
+    manifest {
+        attributes(
+            'Main-Class': "${groupId}.${artifactId}.Shoebill"
+        )
+    }
+}
+
+run {
+    standardInput = System.in
 }
