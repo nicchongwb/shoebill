@@ -1,0 +1,7 @@
+group = "$groupId"
+version = "$versionId"
+
+subprojects {
+    group = "$groupId"
+    version = "$versionId"
+}
