@@ -84,7 +84,12 @@ public class Scanner {
                 break;
 
             default:
-                Shoebill.error(line, "Unexpected character.");
+                if (isDigit(c)) {
+                    // Numeric literals
+                    number();
+                } else {
+                    Shoebill.error(line, "Unexpected character.");
+                }
                 break;
         }
     }
@@ -108,6 +113,36 @@ public class Scanner {
         // Trim surrounding quotes
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void number() {
+        while (isDigit(peek())) {
+            // consume as many digits before '.' or any term char != Digit
+            advance();
+        }
+
+        // Look for fractional part/float delimiter
+        if (peek() == '.' && isDigit(peekNext())) {
+            advance(); // consume '.'
+
+            while (isDigit(peek())) {
+                advance(); // consume all digits after '.'
+            }
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) {
+            return '\0';
+        }
+        return source.charAt(current + 1);
     }
 
     private char peek() { // unconsuming effect
