@@ -3,16 +3,39 @@ package com.stork.shoebill;
 import static com.stork.shoebill.TokenType.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Scanner {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
+    private static final Map<String, TokenType> keywords;
 
     // start & current are offsets that index into the strong
     private int start = 0; // points at the first char in the lexeme being scanned
     private int current = 0; // points at the char currently being considered
     private int line = 1; // keep tracks what source line `current` is
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
 
     public Scanner(String source) {
         this.source = source;
@@ -87,6 +110,8 @@ public class Scanner {
                 if (isDigit(c)) {
                     // Numeric literals
                     number();
+                } else if (isAlpha(c)) { // identifier starts with '_' or [a-zA-Z]
+                    identifier();
                 } else {
                     Shoebill.error(line, "Unexpected character.");
                 }
@@ -136,6 +161,26 @@ public class Scanner {
     
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null) type = IDENTIFIER;
+        addToken(IDENTIFIER);
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || 
+            (c >= 'A' && c <= 'Z') || 
+            c == '_';
     }
 
     private char peekNext() {
